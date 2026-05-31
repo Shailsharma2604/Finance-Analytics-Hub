@@ -11,12 +11,23 @@ if str(MF_ROOT) not in sys.path:
     sys.path.insert(0, str(MF_ROOT))
 
 from lib.theme import inject_theme, render_sidebar_brand
-from lib.session import init_profile, render_profile_sidebar
+from lib.session import init_profile, render_profile_sidebar, get_profile
+from lib.plan_banner import render_active_plan_banner
 
 inject_theme()
 init_profile()
 render_sidebar_brand()
 render_profile_sidebar()
+
+render_active_plan_banner()
+profile = get_profile()
+if st.session_state.get("plan_applied"):
+    st.info(
+        f"**Use in MF sidebar:** Age {profile['profile_age']}, SIP ₹{profile['profile_sip']:,.0f}, "
+        f"Risk **{profile.get('profile_mf_risk', 'moderate').title()}**, Equity **{profile['profile_equity']}%**, "
+        f"Strategy **{profile.get('profile_equity_strategy', 'balanced_growth').replace('_', ' ').title()}** — "
+        f"then click **Generate Plan**."
+    )
 
 st.markdown(
     """

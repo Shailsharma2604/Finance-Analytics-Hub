@@ -13,6 +13,8 @@ from lib.report import build_html_report
 from lib.simulator import run_monte_carlo
 from lib.capstone import render_capstone_footer, render_demo_banner
 from lib.project_meta import PROJECT
+from lib.plan_engine import get_recommended_plan
+from lib.plan_banner import render_active_plan_banner
 
 inject_theme()
 init_profile()
@@ -31,6 +33,9 @@ st.markdown(
 )
 
 profile = get_profile()
+render_active_plan_banner()
+best_plan = get_recommended_plan(profile)
+
 health = compute_health_score(
     age=profile["profile_age"],
     monthly_income=profile["profile_income"],
@@ -102,6 +107,21 @@ with g3:
         margin=dict(t=40, b=10, l=30, r=30),
     )
     st.plotly_chart(fig_gauge, use_container_width=True)
+
+if best_plan:
+    st.markdown("---")
+    st.subheader("✨ Your best plan (auto-calculated)")
+    bp1, bp2, bp3, bp4 = st.columns(4)
+    bp1.metric("Target corpus", f"₹{best_plan.wealth_target:,.0f}")
+    bp2.metric("Recommended SIP", f"₹{best_plan.recommended_sip:,.0f}")
+    bp3.metric("MF / Crypto / Liquid", f"₹{best_plan.mf_sip:,.0f} / ₹{best_plan.crypto_sip:,.0f} / ₹{best_plan.liquid_sip:,.0f}")
+    bp4.metric("Grade", best_plan.plan_grade)
+    if not st.session_state.get("plan_applied"):
+        if st.button("Apply this plan everywhere", type="primary"):
+            from lib.plan_engine import apply_plan_to_session
+
+            apply_plan_to_session(best_plan)
+            st.rerun()
 
 st.markdown("---")
 st.subheader("📋 Prioritized Action Plan")

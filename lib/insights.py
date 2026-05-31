@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from lib.health_score import compute_health_score, HealthResult
+from lib.plan_engine import get_recommended_plan, build_best_plan
 
 
 def generate_advisor_insights(
@@ -13,6 +14,28 @@ def generate_advisor_insights(
 ) -> list[dict]:
     """Return prioritized insights with category and urgency."""
     insights: list[dict] = []
+
+    plan = get_recommended_plan(profile) or build_best_plan(profile)
+    if plan.wealth_target > 0 or plan.profit_target_annual > 0:
+        insights.append(
+            {
+                "priority": 0,
+                "category": "Best Plan",
+                "title": f"Recommended plan — {plan.plan_grade}",
+                "body": plan.summary,
+                "action": " · ".join(plan.actions[:2]),
+            }
+        )
+        if plan.gap_monthly > 0:
+            insights.append(
+                {
+                    "priority": 1,
+                    "category": "Target",
+                    "title": "Close the gap to your profit/wealth target",
+                    "body": f"Need ₹{plan.required_monthly_sip:,.0f}/mo SIP; you invest ₹{profile['profile_sip']:,.0f}/mo.",
+                    "action": f"Increase SIP by ₹{plan.gap_monthly:,.0f} or open Profile & Plan to re-apply.",
+                }
+            )
 
     health: HealthResult = compute_health_score(
         age=profile["profile_age"],

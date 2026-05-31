@@ -12,6 +12,8 @@ from lib.health_score import compute_health_score
 from lib.market_mood import compute_market_mood
 from lib.india_markets import fetch_india_indices, format_inr
 from lib.simulator import run_monte_carlo
+from lib.plan_banner import render_active_plan_banner
+from lib.plan_engine import get_recommended_plan
 
 inject_theme()
 init_profile()
@@ -20,6 +22,8 @@ render_profile_sidebar()
 render_demo_banner()
 
 profile = get_profile()
+render_active_plan_banner()
+plan = get_recommended_plan(profile)
 
 st.markdown(
     """
@@ -138,7 +142,8 @@ with mc1:
 with mc2:
     mc_lump = st.number_input("Lumpsum (₹)", 0, 10_000_000, 0, step=50000, key="mc_lump")
 with mc3:
-    mc_years = st.slider("Years", 5, 35, 20, key="mc_years")
+    default_years = int(plan.target_years) if plan else 20
+    mc_years = st.slider("Years", 5, 35, default_years, key="mc_years")
 with mc4:
     mc_vol = st.slider("Volatility %", 8.0, 35.0, 18.0, key="mc_vol")
 

@@ -49,6 +49,10 @@ def build_html_report(
       <tr><td>Equity target</td><td>{profile.get('profile_equity')}%</td></tr>
       <tr><td>Portfolio value</td><td>₹{total_portfolio:,.0f}</td></tr>
       <tr><td>Crypto mood</td><td>{mood_label} ({mood_score}/100)</td></tr>
+      <tr><td>Wealth target</td><td>₹{profile.get('profile_wealth_target', 0):,.0f}</td></tr>
+      <tr><td>Profit target (annual)</td><td>₹{profile.get('profile_profit_target', 0):,.0f}</td></tr>
+      <tr><td>Horizon</td><td>{profile.get('profile_target_years', '—')} years</td></tr>
+      <tr><td>Risk profile</td><td>{profile.get('profile_mf_risk', profile.get('profile_risk', '—'))}</td></tr>
     </table>
   </div>
 

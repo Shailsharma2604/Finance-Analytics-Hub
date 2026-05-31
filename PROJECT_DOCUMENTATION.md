@@ -1,0 +1,529 @@
+# Finance Analytics Hub — Complete Project Documentation
+
+**Final Year Project (B.Tech Computer Science) · Academic Year 2025–26**
+
+| Field | Value |
+|-------|-------|
+| **Title** | Finance Analytics Hub |
+| **Subtitle** | An Intelligent Web-Based Platform for Personal Investment Planning & Portfolio Analytics |
+| **Student** | Shail (`CS-FYP-2026-001`) |
+| **Department** | Computer Science & Engineering |
+| **Institution** | [Your University Name] |
+| **Guide** | Dr. [Guide Name] |
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Problem Statement & Objectives](#problem-statement--objectives)
+3. [System Architecture](#system-architecture)
+4. [Technology Stack](#technology-stack)
+5. [Installation & Running](#installation--running)
+6. [Project Structure](#project-structure)
+7. [Application Modules](#application-modules)
+8. [Shared Library (`lib/`)](#shared-library-lib)
+9. [External Data Sources](#external-data-sources)
+10. [Core Algorithms](#core-algorithms)
+11. [Session State & Data Flow](#session-state--data-flow)
+12. [Demo Mode & Viva Presentation](#demo-mode--viva-presentation)
+13. [Bundled Subprojects](#bundled-subprojects)
+14. [Configuration Files](#configuration-files)
+15. [Future Scope](#future-scope)
+16. [Disclaimer](#disclaimer)
+
+---
+
+## Overview
+
+**Finance Analytics Hub** is a unified Streamlit web application built as a final-year capstone project. It helps retail investors in India plan mutual fund allocations, monitor cryptocurrency markets, set multi-goal SIP targets, and assess overall financial health — all from a single dashboard with live market feeds and quantitative engines.
+
+Key differentiators:
+
+- **Unified** — Mutual funds, crypto, goals, and health scoring in one app (not separate spreadsheets or tools).
+- **Data-driven** — Live data from Binance (crypto) and Yahoo Finance (Nifty 50, Sensex).
+- **Quantitative** — Monte Carlo wealth simulation with percentile bands (500+ paths).
+- **Explainable** — Rule-based “AI advisor” with prioritized, actionable insights (not a black-box LLM).
+- **Production-style** — Modular `lib/` package, shared session profile, HTML report exports.
+
+**Entry point:** `main.py` (landing page)  
+**Run command:** `streamlit run main.py`  
+**Default URL:** http://localhost:8501
+
+---
+
+## Problem Statement & Objectives
+
+### Problem Statement
+
+Retail investors in India manage **mutual funds**, **crypto exposure**, and **multiple life goals** (house, education, retirement) using disconnected tools. Most apps focus on trading or generic calculators rather than integrated, visual, quantitative planning with live markets and explainable recommendations.
+
+### Project Objectives
+
+| # | Objective |
+|---|-----------|
+| O1 | Design a unified platform integrating mutual fund allocation and cryptocurrency analytics. |
+| O2 | Implement rule-based and Monte Carlo models for wealth projection and goal planning. |
+| O3 | Develop a financial health scoring system across five readiness pillars. |
+| O4 | Integrate live market data (Binance API, Indian indices) without proprietary API keys. |
+| O5 | Provide exportable reports suitable for personal financial review. |
+
+### Methodology (high level)
+
+1. **Requirements** — Investor needs survey (allocation, goals, crypto).
+2. **Design** — Modular Streamlit multi-page app with shared session state.
+3. **Implementation** — Python engines for allocation, simulation, health scoring.
+4. **Integration** — Public REST APIs for crypto and Indian indices.
+5. **Validation** — Demo profiles and edge-case scenario testing.
+
+Metadata (student name, institution, guide) is centralized in `lib/project_meta.py` for easy edits before submission.
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart TB
+    subgraph UI["Streamlit UI"]
+        main[main.py - Landing]
+        p0[Project Overview]
+        p1[Command Center]
+        p2[Mutual Funds]
+        p3[Crypto Intelligence]
+        p4[Portfolio Pulse]
+        p5[Goal Planner]
+        p6[AI Advisor]
+    end
+
+    subgraph lib["lib/ - Shared Logic"]
+        session[session.py]
+        theme[theme.py]
+        sim[simulator.py]
+        health[health_score.py]
+        goals[goals.py]
+        insights[insights.py]
+        market[market_data.py]
+        india[india_markets.py]
+        mood[market_mood.py]
+        report[report.py]
+    end
+
+    subgraph engines["Engines & APIs"]
+        mf[asset_allocation_engine.py]
+        binance[Binance REST]
+        yahoo[Yahoo Finance]
+    end
+
+    main --> p0 & p1 & p2 & p3 & p4 & p5 & p6
+    p0 & p1 & p2 & p3 & p4 & p5 & p6 --> lib
+    p2 --> mf
+    p1 & p3 & p4 & p6 --> binance
+    p1 --> yahoo
+    session --> sim & health & insights & goals
+```
+
+**Layers:**
+
+| Layer | Role |
+|-------|------|
+| **Presentation** | Streamlit pages under `pages/` + `main.py` |
+| **Business logic** | `lib/` — reusable functions, no UI coupling |
+| **Domain engines** | Mutual fund allocation engine (embedded package) |
+| **Data** | Binance public API, Yahoo Finance chart endpoints |
+
+---
+
+## Technology Stack
+
+| Technology | Purpose |
+|------------|---------|
+| **Python 3.11** | Core language |
+| **Streamlit** | Multi-page web UI and session state |
+| **Plotly** | Interactive charts (candlesticks, donuts, Monte Carlo bands) |
+| **Pandas** | Market tables, goal dataframes |
+| **NumPy** | Monte Carlo path generation |
+| **Requests** | HTTP calls to Binance and Yahoo |
+| **Binance API** | Crypto 24h tickers, OHLCV klines (no API key) |
+| **Yahoo Finance** | Nifty 50 & Sensex index prices |
+
+**Dependencies** (`requirements.txt`):
+
+```
+streamlit>=1.28.0
+pandas>=2.0.0
+plotly>=5.17.0
+requests>=2.31.0
+numpy>=1.24.0
+```
+
+---
+
+## Installation & Running
+
+### Prerequisites
+
+- Python 3.11+ (recommended)
+- Internet access for live market modules (MF planner works offline)
+
+### Local setup
+
+```bash
+cd c:\Users\shail\Downloads\main_project\main_project
+pip install -r requirements.txt
+streamlit run main.py
+```
+
+Open **http://localhost:8501** in your browser.
+
+### GitHub Codespaces / Dev Container
+
+The repo includes `.devcontainer/devcontainer.json` (Python 3.11 image). On attach, it runs:
+
+`streamlit run main.py --server.enableCORS false --server.enableXsrfProtection false`
+
+Port **8501** is forwarded automatically.
+
+### Streamlit theme
+
+UI styling is defined in `.streamlit/config.toml` and augmented by `lib/theme.py` (custom CSS, glass cards, hero animations).
+
+---
+
+## Project Structure
+
+```
+main_project/
+├── main.py                          # Landing page & module showcase
+├── requirements.txt                 # Python dependencies
+├── README.md                        # Short project readme
+├── PROJECT_DOCUMENTATION.md         # This file — full project guide
+├── VIVA_DEMO_SCRIPT.md              # 5-minute presentation script
+│
+├── pages/                           # Streamlit multi-page routes
+│   ├── 0_🎓_Project_Overview.py     # FYP docs, architecture, objectives
+│   ├── 1_🏠_Command_Center.py       # India indices, mood, Monte Carlo
+│   ├── 2_📈_Mutual_Funds.py         # Embeds MF allocation planner
+│   ├── 3_₿_Crypto_Intelligence.py # Charts, movers, watchlist
+│   ├── 4_💓_Portfolio_Pulse.py      # Unified snapshot + HTML export
+│   ├── 5_🎯_Goal_Planner.py        # Multi-goal SIP + success probability
+│   └── 6_🧠_AI_Advisor.py           # Health score + prioritized insights
+│
+├── lib/                             # Shared application logic
+│   ├── __init__.py
+│   ├── project_meta.py              # Title, student, objectives, modules list
+│   ├── session.py                   # Global profile (sidebar, all pages)
+│   ├── theme.py                     # CSS injection & sidebar branding
+│   ├── capstone.py                  # Footer, demo banner, tech badges
+│   ├── demo_data.py                 # One-click viva demo profile
+│   ├── market_data.py               # Binance tickers & klines
+│   ├── india_markets.py             # Nifty / Sensex via Yahoo
+│   ├── market_mood.py               # Crypto fear/greed-style gauge
+│   ├── simulator.py                 # Monte Carlo & goal probability
+│   ├── health_score.py              # 5-pillar financial health (0–100)
+│   ├── goals.py                     # Per-goal SIP & asset horizon logic
+│   ├── insights.py                  # Rule-based advisor recommendations
+│   └── report.py                    # HTML report builder
+│
+├── MutualFunds-Allocation-Planner-main/
+│   └── MutualFunds-Allocation-Planner-main/
+│       ├── asset_allocation_engine.py   # Core MF allocation logic
+│       ├── streamlit_app.py             # Original MF Streamlit UI
+│       ├── requirements.txt
+│       └── README.md
+│
+├── example-app-crypto-dashboard-main/   # Reference crypto dashboard (upstream)
+│   ├── app.py
+│   ├── requirements.txt
+│   └── README.md
+│
+├── .streamlit/
+│   └── config.toml                      # Streamlit theme colors
+│
+└── .devcontainer/
+    └── devcontainer.json                # Codespaces / VS Code dev container
+```
+
+---
+
+## Application Modules
+
+### Home — `main.py`
+
+- Hero section with project title, student, institution (from `PROJECT` dict).
+- **Start demo walkthrough** — loads `DEMO_PROFILE` into session.
+- Quick navigation to Project Overview and AI Advisor.
+- Stats row (7 modules, live data, 500+ MC sims, 5 health pillars).
+- Module showcase cards from `MODULES` in `project_meta.py`.
+
+### 1. Project Overview — `pages/0_🎓_Project_Overview.py`
+
+Viva-ready documentation inside the app:
+
+- Student info card (name, roll, department, guide).
+- Tabs: Abstract, Architecture, Tech Stack, Future Scope.
+- Problem statement, objectives, methodology.
+- **Load demo profile** button for presentations.
+
+### 2. Command Center — `pages/1_🏠_Command_Center.py`
+
+Central market and simulation hub:
+
+- **Indian Markets** — Nifty 50 & Sensex live metrics (`fetch_india_indices`).
+- **Crypto watchlist** — 24h snapshot from Binance (`watchlist_snapshot`).
+- **Market mood** — aggregate sentiment gauge from ticker data (`compute_market_mood`).
+- **Financial health score** — from sidebar profile (`compute_health_score`).
+- **Monte Carlo engine** — adjustable SIP, lump sum, years, return, volatility; Plotly percentile bands (`run_monte_carlo`).
+
+### 3. Mutual Fund Planner — `pages/2_📈_Mutual_Funds.py`
+
+Embeds the standalone **Mutual Funds Allocation Planner** by adding its folder to `sys.path` and calling `streamlit_app.main()`:
+
+- Risk profile (conservative / moderate / aggressive).
+- Age-based equity–debt split.
+- Equity strategy (index core, market weighted, balanced, aggressive growth).
+- SIP breakdown, fund category recommendations, rebalancing triggers.
+- Retirement projection charts and JSON plan download.
+
+Core logic lives in `asset_allocation_engine.py` (~900 lines, dataclasses for `UserProfile`, `FinancialGoal`, allocation plans).
+
+### 4. Crypto Intelligence — `pages/3_₿_Crypto_Intelligence.py`
+
+- Live **Binance** 24h tickers (cached 60s).
+- Interactive **OHLCV** candlestick charts (`fetch_klines`).
+- Top gainers / losers (`top_movers`).
+- Paper portfolio / watchlist tied to profile crypto USD value.
+- Manual refresh clears cache.
+
+### 5. Portfolio Pulse — `pages/4_💓_Portfolio_Pulse.py`
+
+Unified dashboard reading the **global sidebar profile**:
+
+- Asset mix visualization (MF vs crypto in INR).
+- Health score breakdown.
+- Market mood summary.
+- **Download HTML report** (`build_html_report`) for offline review.
+
+### 6. Goal Planner — `pages/5_🎯_Goal_Planner.py`
+
+- Editable goals table (target, years, priority, saved amount, your SIP).
+- **Required SIP** per goal (`monthly_sip_for_goal`, `plan_goal`).
+- Recommended asset class by horizon (`asset_for_horizon`).
+- **Success probability** via Monte Carlo (`probability_of_reaching_goal`).
+- Timeline / allocation charts (Plotly).
+
+### 7. AI Advisor — `pages/6_🧠_AI_Advisor.py`
+
+Rule-based “intelligent” guidance (not an external LLM):
+
+- Health score grade and pillar breakdown.
+- Live crypto mood context.
+- **Prioritized insights** (`generate_advisor_insights`) — Safety, Protection, Allocation, Goals, Market.
+- Mini Monte Carlo preview.
+- **HTML report download** for viva demos.
+
+---
+
+## Shared Library (`lib/`)
+
+| Module | Responsibility |
+|--------|----------------|
+| `project_meta.py` | `PROJECT`, `OBJECTIVES`, `TECH_STACK`, `MODULES` constants |
+| `session.py` | `init_profile`, `get_profile`, `render_profile_sidebar` — 9 profile keys synced on every page |
+| `theme.py` | Dark fintech theme CSS, sidebar brand, `inject_theme()` |
+| `capstone.py` | Footer, demo mode banner, technology badge row |
+| `demo_data.py` | `DEMO_PROFILE` + `load_demo_into_session()` |
+| `market_data.py` | Binance ticker/klines, watchlist, formatters, `CRYPTO_OPTIONS` |
+| `india_markets.py` | Yahoo chart API for Nifty/Sensex, INR formatting |
+| `market_mood.py` | Score 0–100 from % of assets up in 24h |
+| `simulator.py` | `run_monte_carlo`, `probability_of_reaching_goal` |
+| `health_score.py` | `HealthResult` dataclass, 5×20 point pillars |
+| `goals.py` | `GoalPlan`, SIP math, horizon-based asset labels |
+| `insights.py` | `generate_advisor_insights` — ordered list with priority/category |
+| `report.py` | `build_html_report` — self-contained HTML export |
+
+### Profile keys (session state)
+
+| Key | Description |
+|-----|-------------|
+| `profile_age` | Investor age (18–75) |
+| `profile_income` | Monthly income (₹) |
+| `profile_sip` | Monthly SIP (₹) |
+| `profile_equity` | Target equity % |
+| `profile_mf_value` | Current mutual fund holdings (₹) |
+| `profile_crypto_usd` | Crypto holdings (USD) |
+| `profile_usd_inr` | USD→INR rate |
+| `profile_emergency_fund` | Boolean — 6-month fund built |
+| `profile_insurance` | Boolean — adequate cover |
+
+---
+
+## External Data Sources
+
+### Binance (crypto)
+
+| Endpoint | Usage |
+|----------|--------|
+| `GET /api/v3/ticker/24hr` | All symbols 24h change — mood, watchlist, movers |
+| `GET /api/v3/klines` | OHLCV candles for chart module |
+
+No API key required. Rate limits apply; UI caches data (~60s TTL).
+
+### Yahoo Finance (India indices)
+
+`lib/india_markets.py` fetches chart data for encoded symbols (Nifty 50, Sensex). Requires network; Command Center shows graceful fallback if unavailable.
+
+---
+
+## Core Algorithms
+
+### Monte Carlo wealth simulation (`lib/simulator.py`)
+
+- Models monthly SIP + initial lump sum over `years × 12` months.
+- Monthly returns: normal distribution with `mu = mean_return/12`, `sigma = volatility/√12`.
+- Default: **500 simulations**, seed 42 for reproducibility.
+- Outputs: 10th / 50th / 90th percentile paths, final wealth distribution, total invested.
+
+### Goal success probability
+
+Uses the same return/volatility assumptions to estimate probability of reaching a target corpus by the goal year (used in Goal Planner).
+
+### Financial health score (`lib/health_score.py`)
+
+Five pillars, **20 points each** (max 100):
+
+1. Emergency fund  
+2. Insurance  
+3. Savings rate (SIP / income)  
+4. Age-appropriate equity allocation  
+5. Diversification (MF + crypto balance)
+
+Returns `HealthResult`: score, letter grade, color, breakdown dict, insight strings.
+
+### Mutual fund allocation (`asset_allocation_engine.py`)
+
+- Maps age → risk profile and equity–debt ratio.
+- Sub-allocates equity across large/mid/small cap per `EquityStrategy`.
+- Debt split across liquid, short-duration, corporate bond categories.
+- Goal-aware adjustments via `FinancialGoal` timeframes (short / medium / long term).
+- Generates SIP amounts, rebalancing bands, and narrative recommendations.
+
+### Advisor insights (`lib/insights.py`)
+
+Deterministic rules, e.g.:
+
+- No emergency fund → highest priority safety action.
+- No insurance → protection gap.
+- Equity % far from `100 - age` → rebalance suggestion.
+- Goals SIP gap → funding recommendation.
+- Extreme market mood → caution or opportunity framing.
+
+---
+
+## Session State & Data Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Sidebar as Profile Sidebar
+    participant Session as st.session_state
+    participant Pages as Any Page Module
+    participant Engine as lib engines
+
+    User->>Sidebar: Edit age, income, SIP, etc.
+    Sidebar->>Session: Update PROFILE_KEYS
+    User->>Pages: Navigate module
+    Pages->>Session: get_profile()
+    Pages->>Engine: compute_health / insights / MC
+    Engine-->>Pages: scores, charts, actions
+    User->>Pages: Download HTML / JSON
+```
+
+- **Demo flag:** `demo_loaded` set when demo profile is injected.
+- **Goals:** `goals_df` persisted in session on Goal Planner page.
+- **Caching:** `@st.cache_data(ttl=60)` on market fetches to reduce API load.
+
+---
+
+## Demo Mode & Viva Presentation
+
+### Quick start
+
+1. Run `streamlit run main.py`.
+2. Click **Start demo walkthrough** on home (or **Load demo profile** on Project Overview).
+3. Walk through: Command Center → Mutual Funds → Goal Planner → AI Advisor.
+
+### Demo profile (`lib/demo_data.py`)
+
+| Field | Demo value |
+|-------|------------|
+| Age | 22 |
+| Monthly income | ₹45,000 |
+| Monthly SIP | ₹12,000 |
+| Equity % | 75 |
+| MF value | ₹185,000 |
+| Crypto (USD) | $850 |
+| Emergency fund | Yes |
+| Insurance | No (triggers advisor insight) |
+
+### Full script
+
+See **`VIVA_DEMO_SCRIPT.md`** for a timed 5-minute viva walkthrough.
+
+### Before submission
+
+Edit **`lib/project_meta.py`** with real university name, guide name, and roll number.
+
+---
+
+## Bundled Subprojects
+
+### Mutual Funds Allocation Planner
+
+- **Path:** `MutualFunds-Allocation-Planner-main/MutualFunds-Allocation-Planner-main/`
+- **Integration:** Page `2_📈_Mutual_Funds.py` imports `streamlit_app.main`.
+- **Engine:** `asset_allocation_engine.py` — standalone, testable allocation logic.
+
+### Example Crypto Dashboard
+
+- **Path:** `example-app-crypto-dashboard-main/`
+- Reference / upstream Streamlit crypto dashboard; concepts reused in `lib/market_data.py` and Crypto Intelligence page.
+
+---
+
+## Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `.streamlit/config.toml` | Base theme (primary color, background) |
+| `lib/theme.py` | Extended custom CSS for capstone branding |
+| `.devcontainer/devcontainer.json` | Dev container image, port 8501, auto-run Streamlit |
+
+---
+
+## Future Scope
+
+- ML-based risk profiling from user behavior and returns history  
+- NSE equity screener and stock-level allocation  
+- User authentication and cloud-saved portfolios  
+- Mobile app (React Native / Flutter) consuming same Python API layer  
+- SEBI-compliant disclaimers and audit logging for production use  
+
+---
+
+## Disclaimer
+
+This application is an **educational final-year project**. It is **not** SEBI-registered investment advice, not a licensed robo-advisor, and not a substitute for consultation with a certified financial planner. Market data may be delayed or unavailable; simulations assume simplified return models. **Always verify decisions with qualified professionals before investing real capital.**
+
+---
+
+## Related Files
+
+| Document | Description |
+|----------|-------------|
+| [README.md](README.md) | Concise readme for repo visitors |
+| [VIVA_DEMO_SCRIPT.md](VIVA_DEMO_SCRIPT.md) | Step-by-step 5-minute demo script |
+| `lib/project_meta.py` | Editable metadata source of truth |
+
+---
+
+*Finance Analytics Hub · B.Tech Final Year Project · 2025–26*

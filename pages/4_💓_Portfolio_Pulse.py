@@ -9,6 +9,8 @@ from lib.market_data import fetch_ticker_24h, watchlist_snapshot, format_price
 from lib.health_score import compute_health_score
 from lib.market_mood import compute_market_mood
 from lib.report import build_html_report
+from lib.plan_banner import render_active_plan_banner
+from lib.plan_engine import get_recommended_plan
 
 inject_theme()
 init_profile()
@@ -16,6 +18,8 @@ render_sidebar_brand()
 render_profile_sidebar()
 
 profile = get_profile()
+render_active_plan_banner()
+plan = get_recommended_plan(profile)
 
 st.markdown(
     """
@@ -69,6 +73,14 @@ with col_market:
             st.metric(item["label"], format_price(item["price"]), f"{item['change_pct']:+.2f}%")
     except Exception:
         st.caption("Markets offline")
+
+if plan:
+    st.markdown("---")
+    st.subheader("📐 Target vs current")
+    t1, t2, t3 = st.columns(3)
+    t1.metric("Wealth target", f"₹{plan.wealth_target:,.0f}", f"{plan.target_years}y")
+    t2.metric("Median at horizon", f"₹{plan.median_corpus_at_horizon:,.0f}")
+    t3.metric("Plan SIP", f"₹{plan.recommended_sip:,.0f}/mo", plan.plan_grade)
 
 st.markdown("---")
 st.subheader("🥧 Asset Mix")

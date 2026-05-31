@@ -23,7 +23,6 @@ render_sidebar_brand()
 render_profile_sidebar()
 render_demo_banner()
 
-<<<<<<< HEAD
 # ─── Hero ───
 st.markdown(
     f"""
@@ -50,8 +49,8 @@ with b1:
         st.balloons()
         st.rerun()
 with b2:
-    if st.button("📋 Project overview", use_container_width=True):
-        st.switch_page("pages/0_🎓_Project_Overview.py")
+    if st.button("⚙️ Set target & best plan", use_container_width=True):
+        st.switch_page("pages/7_⚙️_Profile_and_Plan.py")
 with b3:
     if st.button("🧠 Open AI Advisor", use_container_width=True):
         st.switch_page("pages/6_🧠_AI_Advisor.py")
@@ -61,7 +60,7 @@ st.markdown("---")
 # Stats
 s1, s2, s3, s4, s5 = st.columns(5)
 stats = [
-    ("7", "Integrated modules"),
+    ("8", "Integrated modules"),
     ("Live", "Market data"),
     ("500+", "MC simulations"),
     ("5", "Health pillars"),
@@ -81,7 +80,7 @@ st.markdown("### 🚀 Explore the platform")
 cols = st.columns(3)
 for i, (name, desc) in enumerate(MODULES):
     with cols[i % 3]:
-        icons = ["🏠", "📈", "₿", "🎯", "🧠", "💓"]
+        icons = ["⚙️", "🏠", "📈", "₿", "🎯", "🧠", "💓"]
         st.markdown(
             f"""
             <div class="glass-card" style="min-height:120px;">
@@ -113,81 +112,8 @@ st.markdown(
 )
 
 st.info(
-    "👈 **Sidebar navigation** — start with **Project Overview** for viva, then **Command Center** with demo profile."
+    "👈 **Start here:** open **Profile & Plan** (sidebar or page 7), set your **wealth or profit target**, "
+    "click **Apply plan** — SIP, goals, MF hints, and AI Advisor update everywhere."
 )
 
 render_capstone_footer()
-=======
-# Header
-st.markdown("# 💰 Finance Analytics Hub")
-st.markdown("<p class='subtitle'>Choose your financial analysis tool</p>", unsafe_allow_html=True)
-
-# Project paths
-MUTUAL_FUND_APP_PATH = "https://proejct-7-1.streamlit.app/"
-CRYPTO_ANALYSIS_APP_PATH = r"example-app-crypto-dashboard-main/app.py"
-
-# Create two columns for the project cards
-col1, col2 = st.columns(2, gap="large")
-
-with col1:
-    st.markdown("""
-        <div class='project-card'>
-            <div class='project-title'>📈 Mutual Fund Analyzer</div>
-            <div class='project-desc'>
-                Comprehensive mutual fund portfolio planning and analysis tool
-            </div>
-            <ul class='feature-list'>
-                <li class='feature-item'>Portfolio Allocation Optimizer</li>
-                <li class='feature-item'>Risk Assessment Tools</li>
-                <li class='feature-item'>Performance Analytics</li>
-                <li class='feature-item'>Investment Recommendations</li>
-                <li class='feature-item'>Historical Data Analysis</li>
-            </ul>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("🚀 Launch Mutual Fund Analyzer", key="mutual_fund"):
-        if os.path.exists(MUTUAL_FUND_APP_PATH):
-            st.success("✅ Launching Mutual Fund Analyzer...")
-            st.balloons()
-            subprocess.Popen(["streamlit", "run", MUTUAL_FUND_APP_PATH])
-            st.info("📌 The app will open in a new browser tab")
-        else:
-            st.error("❌ File not found. Please check the path.")
-
-with col2:
-    st.markdown("""
-        <div class='project-card'>
-            <div class='project-title'>₿ Crypto Analytics Dashboard</div>
-            <div class='project-desc'>
-                Advanced cryptocurrency market analysis and insights platform
-            </div>
-            <ul class='feature-list'>
-                <li class='feature-item'>Real-time Price Tracking</li>
-                <li class='feature-item'>Market Trend Analysis</li>
-                <li class='feature-item'>Technical Indicators</li>
-                <li class='feature-item'>Portfolio Monitoring</li>
-                <li class='feature-item'>Multi-Currency Support</li>
-            </ul>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    if st.button("🚀 Launch Crypto Analytics", key="crypto"):
-        if os.path.exists(CRYPTO_ANALYSIS_APP_PATH):
-            st.success("✅ Launching Crypto Analytics Dashboard...")
-            st.balloons()
-            subprocess.Popen(["streamlit", "run", CRYPTO_ANALYSIS_APP_PATH])
-            st.info("📌 The app will open in a new browser tab")
-        else:
-            st.error("❌ File not found. Please check the path.")
-
-# Footer
-st.markdown("---")
-st.markdown(f"""
-    <div class='footer'>
-        <p>🕐 Current Time: {datetime.now().strftime('%B %d, %Y - %I:%M %p')}</p>
-        <p>💡 Tip: Each project runs independently in a separate browser tab</p>
-        <p>⚡ Built with Streamlit | Finance Analytics Hub</p>
-    </div>
-""", unsafe_allow_html=True)
->>>>>>> 480f4809ccf98aa5c66210c9b48bed8ad5717658

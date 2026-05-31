@@ -30,6 +30,7 @@ TECH_STACK = [
 ]
 
 MODULES = [
+    ("Profile & Plan", "Wealth/profit targets → best SIP & allocation synced app-wide"),
     ("Command Center", "Live indices, crypto mood, Monte Carlo engine"),
     ("Mutual Fund Planner", "Equity-debt allocation, SIP, rebalancing"),
     ("Crypto Intelligence", "OHLCV charts, movers, paper portfolio"),

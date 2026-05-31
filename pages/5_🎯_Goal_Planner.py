@@ -8,6 +8,8 @@ from lib.theme import inject_theme, render_sidebar_brand
 from lib.session import init_profile, render_profile_sidebar, get_profile
 from lib.goals import plan_goal, monthly_sip_for_goal, asset_for_horizon
 from lib.simulator import probability_of_reaching_goal
+from lib.plan_banner import render_active_plan_banner
+from lib.plan_engine import get_recommended_plan
 
 inject_theme()
 init_profile()
@@ -24,13 +26,20 @@ st.markdown(
 
 profile = get_profile()
 total_sip = profile["profile_sip"]
+render_active_plan_banner()
+plan = get_recommended_plan(profile)
 
 st.subheader("🎯 Your Goals")
 st.caption("Edit rows below — we'll calculate required SIP and whether you're on track.")
 
+wealth = profile.get("profile_wealth_target", 2_500_000) or 2_500_000
+years = profile.get("profile_target_years", 7)
+saved = int(profile["profile_mf_value"] + profile["profile_crypto_usd"] * profile["profile_usd_inr"])
+sip_row = int(plan.recommended_sip) if plan else int(profile["profile_sip"])
+
 default_goals = pd.DataFrame(
     [
-        {"Goal": "House Down Payment", "Target (₹)": 2_500_000, "Years": 7, "Priority": 1, "Saved (₹)": 200_000, "Your SIP (₹)": 15_000},
+        {"Goal": "Wealth target (profile)", "Target (₹)": wealth, "Years": years, "Priority": 1, "Saved (₹)": saved, "Your SIP (₹)": sip_row},
         {"Goal": "Child Education", "Target (₹)": 3_000_000, "Years": 12, "Priority": 2, "Saved (₹)": 50_000, "Your SIP (₹)": 8_000},
         {"Goal": "Retirement Corpus", "Target (₹)": 5_000_000, "Years": 25, "Priority": 3, "Saved (₹)": 300_000, "Your SIP (₹)": 12_000},
     ]
@@ -38,6 +47,8 @@ default_goals = pd.DataFrame(
 
 if "goals_df" not in st.session_state:
     st.session_state.goals_df = default_goals
+elif st.session_state.get("plan_applied") and plan:
+    st.caption("Primary goal synced from your Profile & Plan target.")
 
 edited = st.data_editor(
     st.session_state.goals_df,
