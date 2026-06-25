@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 
 const BINANCE_TICKER = "https://api.binance.com/api/v3/ticker/24hr";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     const resp = await fetch(BINANCE_TICKER, {
-      next: { revalidate: 60 },
+      cache: "no-store",
       headers: { Accept: "application/json" },
     });
     if (!resp.ok) {
