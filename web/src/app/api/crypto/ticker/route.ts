@@ -17,7 +17,10 @@ export async function GET() {
       );
     }
     const data = await resp.json();
-    return NextResponse.json(data);
+    // Return liquid USDT pairs only — full Binance payload exceeds Vercel 2MB cache limit
+    const usdt = (data as { symbol: string; lastPrice: string; priceChangePercent: string; quoteVolume: string }[])
+      .filter((t) => t.symbol.endsWith("USDT"));
+    return NextResponse.json(usdt);
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to fetch crypto data";
     return NextResponse.json({ error: message }, { status: 500 });
