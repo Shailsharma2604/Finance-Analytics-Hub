@@ -8,12 +8,13 @@ from plotly.subplots import make_subplots
 from lib.theme import inject_theme, render_sidebar_brand
 from lib.session import init_profile, render_profile_sidebar
 from lib.market_data import (
-    fetch_ticker_24h,
+    fetch_ticker_24h_with_source,
     fetch_klines,
     format_price,
     top_movers,
     CRYPTO_OPTIONS,
     get_symbol_row,
+    data_source_banner,
 )
 
 inject_theme()
@@ -32,7 +33,7 @@ st.markdown(
 
 @st.cache_data(ttl=60)
 def load_data():
-    return fetch_ticker_24h()
+    return fetch_ticker_24h_with_source()
 
 
 if st.sidebar.button("🔄 Refresh now"):
@@ -42,10 +43,14 @@ st.sidebar.caption("Prices cache for 60 seconds")
 
 
 try:
-    df = load_data()
+    df, data_source = load_data()
 except Exception as e:
-    st.error(f"Could not reach Binance API: {e}")
+    st.error(f"Could not load crypto market data: {e}")
     st.stop()
+
+banner = data_source_banner(data_source)
+if banner:
+    st.info(banner)
 
 # --- Top metrics row ---
 selected_label = st.sidebar.selectbox("Chart asset", list(CRYPTO_OPTIONS.keys()), index=0)

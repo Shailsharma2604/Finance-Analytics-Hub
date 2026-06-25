@@ -7,7 +7,7 @@ from datetime import datetime
 from lib.theme import inject_theme, render_sidebar_brand
 from lib.session import init_profile, render_profile_sidebar, get_profile
 from lib.capstone import render_demo_banner
-from lib.market_data import fetch_ticker_24h, watchlist_snapshot, format_price
+from lib.market_data import fetch_ticker_24h_with_source, watchlist_snapshot, format_price, data_source_banner
 from lib.health_score import compute_health_score
 from lib.market_mood import compute_market_mood
 from lib.india_markets import fetch_india_indices, format_inr
@@ -57,12 +57,15 @@ st.markdown("---")
 
 @st.cache_data(ttl=60)
 def load_markets():
-    return fetch_ticker_24h()
+    return fetch_ticker_24h_with_source()
 
 
 try:
     with st.spinner("Syncing markets…"):
-        ticker_df = load_markets()
+        ticker_df, data_source = load_markets()
+    banner = data_source_banner(data_source)
+    if banner:
+        st.info(banner)
     watchlist = watchlist_snapshot(ticker_df)
     mood = compute_market_mood(ticker_df)
 

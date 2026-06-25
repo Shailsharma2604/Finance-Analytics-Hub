@@ -9,6 +9,7 @@ import { computeMarketMood } from "@/lib/market-mood";
 import { buildHtmlReport, downloadHtmlReport } from "@/lib/report";
 import { computeHealthScore } from "@/lib/health-score";
 import { currentWealth } from "@/lib/format";
+import { parseTickerResponse } from "@/lib/crypto-fetch";
 import type { CryptoTicker } from "@/lib/types";
 
 export default function AdvisorPage() {
@@ -22,7 +23,7 @@ export default function AdvisorPage() {
     try {
       const res = await fetch("/api/crypto/ticker");
       if (!res.ok) throw new Error("Market data unavailable");
-      setTickers(await res.json());
+      setTickers(parseTickerResponse(await res.json()).tickers);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load");

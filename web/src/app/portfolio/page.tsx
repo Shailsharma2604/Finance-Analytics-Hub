@@ -10,6 +10,7 @@ import { computeMarketMood } from "@/lib/market-mood";
 import { buildHtmlReport, downloadHtmlReport } from "@/lib/report";
 import { generateAdvisorInsights } from "@/lib/insights";
 import { currentWealth, formatINR } from "@/lib/format";
+import { parseTickerResponse } from "@/lib/crypto-fetch";
 import type { CryptoTicker } from "@/lib/types";
 
 export default function PortfolioPage() {
@@ -20,7 +21,7 @@ export default function PortfolioPage() {
   useEffect(() => {
     fetch("/api/crypto/ticker")
       .then((r) => r.json())
-      .then(setTickers)
+      .then((json) => setTickers(parseTickerResponse(json).tickers))
       .finally(() => setLoading(false));
   }, []);
 

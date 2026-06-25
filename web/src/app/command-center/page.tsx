@@ -8,6 +8,7 @@ import { useProfile } from "@/context/ProfileContext";
 import { runMonteCarlo } from "@/lib/simulator";
 import { computeMarketMood } from "@/lib/market-mood";
 import { formatINRDecimal, formatPct, currentWealth } from "@/lib/format";
+import { fallbackBannerMessage, parseTickerResponse, type CryptoDataSource } from "@/lib/crypto-fetch";
 import type { CryptoTicker, IndiaIndex } from "@/lib/types";
 import { WATCHLIST } from "@/lib/constants";
 
@@ -17,6 +18,7 @@ export default function CommandCenterPage() {
   const [tickers, setTickers] = useState<CryptoTicker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<CryptoDataSource>("binance");
 
   const [sip, setSip] = useState(profile.profile_sip);
   const [years, setYears] = useState(profile.profile_target_years);
@@ -33,9 +35,10 @@ export default function CommandCenterPage() {
       if (!idxRes.ok) throw new Error("India indices unavailable");
       if (!tickRes.ok) throw new Error("Crypto ticker unavailable");
       const idxJson = await idxRes.json();
-      const tickJson = await tickRes.json();
+      const parsed = parseTickerResponse(await tickRes.json());
       setIndices(idxJson.indices ?? []);
-      setTickers(tickJson);
+      setTickers(parsed.tickers);
+      setDataSource(parsed.source);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load markets");
     } finally {
@@ -85,6 +88,11 @@ export default function CommandCenterPage() {
 
       {!loading && !error && (
         <>
+          {fallbackBannerMessage(dataSource) && (
+            <p className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm text-sky-200">
+              {fallbackBannerMessage(dataSource)}
+            </p>
+          )}
           <section>
             <h2 className="mb-3 font-semibold">🇮🇳 India Indices</h2>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

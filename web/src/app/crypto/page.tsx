@@ -8,6 +8,7 @@ import { useProfile } from "@/context/ProfileContext";
 import { topMovers } from "@/lib/market-mood";
 import { formatPct, formatUSD } from "@/lib/format";
 import { CRYPTO_OPTIONS } from "@/lib/constants";
+import { fallbackBannerMessage, parseTickerResponse, type CryptoDataSource } from "@/lib/crypto-fetch";
 import type { CryptoTicker } from "@/lib/types";
 
 interface Candle {
@@ -23,6 +24,7 @@ export default function CryptoPage() {
   const [loading, setLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<CryptoDataSource>("binance");
   const [buyQty, setBuyQty] = useState(0.01);
 
   const fetchTicker = useCallback(async () => {
@@ -31,7 +33,9 @@ export default function CryptoPage() {
     try {
       const res = await fetch("/api/crypto/ticker");
       if (!res.ok) throw new Error("Crypto data unavailable");
-      setTickers(await res.json());
+      const parsed = parseTickerResponse(await res.json());
+      setTickers(parsed.tickers);
+      setDataSource(parsed.source);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load");
     } finally {
@@ -89,6 +93,11 @@ export default function CryptoPage() {
 
       {!loading && !error && (
         <>
+          {fallbackBannerMessage(dataSource) && (
+            <p className="rounded-lg border border-sky-500/30 bg-sky-500/10 px-4 py-2 text-sm text-sky-200">
+              {fallbackBannerMessage(dataSource)}
+            </p>
+          )}
           <div className="glass-card">
             <label className="text-sm">
               Chart symbol
