@@ -4,6 +4,8 @@
 
 **An Intelligent Web-Based Platform for Personal Investment Planning & Portfolio Analytics**
 
+> **Full project documentation:** see **[PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md)** — architecture, all 8 modules, algorithms, session state, APIs, demo mode, and viva tips.
+
 ---
 
 | | |
@@ -25,7 +27,7 @@ Investors use fragmented tools for mutual funds, crypto, and goal planning. Ther
 
 ## Objectives
 
-1. Build a unified fintech dashboard with 7 functional modules  
+1. Build a unified fintech dashboard with 8 integrated modules (including Profile & Best Plan)  
 2. Implement asset allocation engine with equity-debt split and SIP breakdown  
 3. Integrate live market APIs without API keys  
 4. Develop Monte Carlo and goal-based SIP calculators  
@@ -57,12 +59,68 @@ Python · Streamlit · Plotly · Pandas · NumPy · Requests · Binance API · Y
 
 ```bash
 git clone <your-repo>
-cd main_project
+cd Finance_Analytics_Hub
 pip install -r requirements.txt
 streamlit run main.py
 ```
 
 Open **http://localhost:8501**
+
+## Deploy
+
+No API keys are required (Binance and Yahoo Finance are used without authentication). Outbound HTTPS must be allowed for live market data.
+
+### Docker (recommended)
+
+```bash
+docker compose up --build
+```
+
+Or without Compose:
+
+```bash
+docker build -t finance-analytics-hub .
+docker run -p 8501:8501 finance-analytics-hub
+```
+
+Open **http://localhost:8501**. Cloud hosts that set a `PORT` env var (Railway, Render, etc.) are supported automatically.
+
+### Streamlit Community Cloud
+
+**Repo:** [github.com/Shailsharma2604/Finance-Analytics-Hub](https://github.com/Shailsharma2604/Finance-Analytics-Hub)
+
+No API keys or `.streamlit/secrets.toml` are required — Binance and Yahoo Finance are used without authentication.
+
+#### 1. Push to GitHub
+
+```bash
+cd Finance_Analytics_Hub
+git add main.py pages/ lib/ requirements.txt .streamlit/ MutualFunds-Allocation-Planner-main/
+git commit -m "Prepare Streamlit Cloud deployment"
+git push origin main
+```
+
+Skip `git commit` if everything is already pushed.
+
+#### 2. Deploy on Streamlit Cloud
+
+1. Sign in at [share.streamlit.io](https://share.streamlit.io) with your GitHub account.
+2. Click **Create app** (or **New app**).
+3. Set:
+   - **Repository:** `Shailsharma2604/Finance-Analytics-Hub`
+   - **Branch:** `main`
+   - **Main file path:** `main.py`
+4. **Advanced settings** (optional): set **Python version** to **3.11** (matches the Docker image; 3.12 also works).
+5. Leave **Secrets** empty — not needed for current features.
+6. Click **Deploy**. First build takes a few minutes.
+
+Your app will be live at `https://<app-name>.streamlit.app`.
+
+#### Notes
+
+- `packages.txt` is not required (no system-level apt dependencies).
+- Live market data needs outbound HTTPS from Streamlit Cloud to Binance and Yahoo Finance.
+- The embedded Mutual Funds planner ships inside `MutualFunds-Allocation-Planner-main/` — no git submodules.
 
 ### Demo mode (for viva)
 
@@ -75,7 +133,8 @@ Open **http://localhost:8501**
 ```
 main_project/
 ├── main.py                 # Landing page
-├── pages/                  # 7 Streamlit pages
+├── pages/                  # 8 Streamlit pages
+├── PROJECT_DOCUMENTATION.md  # Complete project guide
 ├── lib/                    # Shared engines & theme
 ├── MutualFunds-.../        # Allocation engine
 ├── requirements.txt
