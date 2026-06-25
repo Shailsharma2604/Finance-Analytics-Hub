@@ -53,9 +53,52 @@ Streamlit UI  →  lib/ (shared logic)  →  Allocation Engine | Binance | Yahoo
 
 ## Tech Stack
 
-Python · Streamlit · Plotly · Pandas · NumPy · Requests · Binance API · Yahoo Finance
+Python · Streamlit · Plotly · Pandas · NumPy · Requests · Binance API · Yahoo Finance  
+**Production (Vercel):** Next.js 15 · TypeScript · Tailwind CSS · Recharts
 
-## Installation
+## Deploy to Vercel
+
+The **Streamlit app cannot run on Vercel** (long-running Python + WebSockets). Use the **`web/`** Next.js app for cloud deployment; keep Streamlit for local development.
+
+### Prerequisites
+
+- [Vercel account](https://vercel.com/signup)
+- [Vercel CLI](https://vercel.com/docs/cli) (optional): `npm i -g vercel`
+
+### Option A — Vercel Dashboard (recommended)
+
+1. Push this repo to GitHub.
+2. [Import project](https://vercel.com/new) → select the repository.
+3. Set **Root Directory** to `web`.
+4. Framework preset: **Next.js** (auto-detected).
+5. Build command: `npm run build` · Install: `npm install` · Output: default (`.next`).
+6. **Environment variables:** none required (Binance & Yahoo are keyless). Copy `.env.example` if you add optional tuning vars.
+7. Deploy.
+
+### Option B — Vercel CLI
+
+```bash
+cd web
+npm install
+npm run build          # verify locally first
+vercel                 # link project on first run
+vercel --prod          # production deploy
+```
+
+When prompted for the project root, use **`web`** (not the repo root).
+
+### What runs where
+
+| Runtime | Command | Use case |
+|---------|---------|----------|
+| **Vercel** (`web/`) | `npm run dev` / Vercel deploy | Public demo, FYP submission URL |
+| **Local Streamlit** | `streamlit run main.py` | Full Python stack, allocation engine source |
+
+### Monorepo note
+
+`vercel.json` at the repo root points build commands at `web/`. If you set Root Directory to `web` in the dashboard, the root `vercel.json` is ignored — `web/vercel.json` applies instead.
+
+## Installation (Streamlit — local)
 
 ```bash
 git clone <your-repo>
@@ -131,15 +174,30 @@ Your app will be live at `https://<app-name>.streamlit.app`.
 ## Project Structure
 
 ```
-main_project/
-├── main.py                 # Landing page
+Finance_Analytics_Hub/
+├── main.py                 # Streamlit landing (local)
 ├── pages/                  # 8 Streamlit pages
-├── PROJECT_DOCUMENTATION.md  # Complete project guide
-├── lib/                    # Shared engines & theme
-├── MutualFunds-.../        # Allocation engine
+├── lib/                    # Shared Python engines & theme
+├── web/                    # Next.js app (Vercel deployment)
+│   ├── src/app/            # App Router pages + API routes
+│   ├── src/lib/            # TypeScript ports of calculators
+│   └── package.json
+├── MutualFunds-.../        # Allocation engine (Python)
+├── vercel.json             # Monorepo deploy hints
+├── .env.example
 ├── requirements.txt
 └── README.md
 ```
+
+### Next.js (Vercel) — local dev
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open **http://localhost:3000**
 
 ## Screenshots
 

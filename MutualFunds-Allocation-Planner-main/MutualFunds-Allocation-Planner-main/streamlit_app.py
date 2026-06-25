@@ -361,8 +361,9 @@ def render_risk_preferences_fragment() -> tuple:
         "Age",
         min_value=18,
         max_value=75,
-        value=30,
+        value=int(st.session_state.get("mf_age", 30)),
         help="Your current age (Used for asset allocation suggestions)",
+        key="mf_age_slider",
     )
     st.markdown("---")
     st.subheader("☣️ Risk Preference")
@@ -405,7 +406,8 @@ def render_risk_preferences_fragment() -> tuple:
         )
         st.caption(f"💡 Debt allocation will be {100-custom_equity}%")
 
-    # Store in session state for access outside fragment
+    # Store in session state — @st.fragment does not return values to callers
+    st.session_state.mf_age = age
     st.session_state.allocation_method = allocation_method
     st.session_state.risk_profile = risk_profile
     st.session_state.custom_equity = custom_equity
@@ -425,6 +427,7 @@ def render_risk_preferences_fragment() -> tuple:
     equity_strategy = {v: k for k, v in equity_strategy_options.items()}.get(
         equity_strategy_ui
     )
+    st.session_state.equity_strategy = equity_strategy
     st.caption(
         f"{AssetAllocationEngine.equity_strategy_descriptions[equity_strategy]}"  # type: ignore
     )
@@ -459,16 +462,18 @@ def render_sidebar() -> tuple:
     - Best user experience!
     """
     with st.sidebar:
-        age, risk_profile, custom_equity, equity_strategy = (
-            render_risk_preferences_fragment()
-        )
+        render_risk_preferences_fragment()
+        age = int(st.session_state.get("mf_age", 30))
+        risk_profile = st.session_state.get("risk_profile")
+        custom_equity = st.session_state.get("custom_equity")
+        equity_strategy = st.session_state.get("equity_strategy", "balanced_growth")
         with st.form("user_profile_form"):
             st.subheader("📝 Finacial Information")
 
             monthly_income = st.number_input(
                 "Monthly Income (₹)",
                 min_value=0,
-                value=100000,
+                value=int(st.session_state.get("mf_monthly_income", 100000)),
                 step=10000,
                 format="%d",
                 help="Your monthly take-home salary",
@@ -480,7 +485,7 @@ def render_sidebar() -> tuple:
             monthly_investment = st.number_input(
                 "Monthly SIP Amount (₹)",
                 min_value=0,
-                value=30000,
+                value=int(st.session_state.get("mf_monthly_investment", 30000)),
                 step=5000,
                 format="%d",
                 help="Amount you want to invest monthly via SIP",
@@ -502,13 +507,13 @@ def render_sidebar() -> tuple:
             with col1:
                 emergency_fund = st.checkbox(
                     "Emergency Fund",
-                    value=False,
+                    value=bool(st.session_state.get("mf_emergency_fund", False)),
                     help="6 months expenses in liquid savings",
                 )
             with col2:
                 insurance = st.checkbox(
                     "Adequate Insurance",
-                    value=False,
+                    value=bool(st.session_state.get("mf_insurance", False)),
                     help="Term life + health insurance",
                 )
 
@@ -810,7 +815,8 @@ def main():
     ) = render_sidebar()
 
     # Generate and display plan
-    if submit_button or "plan" in st.session_state:
+    plan = st.session_state.get("plan")
+    if submit_button or plan is not None:
 
         if submit_button:
             try:
@@ -853,8 +859,10 @@ def main():
                 st.error(f"❌ **Error generating plan:** {str(e)}")
                 return
 
-        # Retrieve plan from session state
-        plan = st.session_state.plan
+        plan = st.session_state.get("plan")
+        if plan is None:
+            render_welcome_screen()
+            return
 
         # Success message
         st.toast("✅ Your personalized asset allocation plan is ready!")

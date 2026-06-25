@@ -21,6 +21,18 @@ render_profile_sidebar()
 
 render_active_plan_banner()
 profile = get_profile()
+
+# Seed MF planner sidebar from global hub profile
+st.session_state.setdefault("mf_age", int(profile["profile_age"]))
+st.session_state.setdefault("mf_monthly_income", int(profile["profile_income"]))
+st.session_state.setdefault("mf_monthly_investment", int(profile["profile_sip"]))
+st.session_state.setdefault("mf_emergency_fund", bool(profile["profile_emergency_fund"]))
+st.session_state.setdefault("mf_insurance", bool(profile["profile_insurance"]))
+st.session_state.setdefault("risk_profile", profile.get("profile_mf_risk", "moderate"))
+st.session_state.setdefault(
+    "equity_strategy", profile.get("profile_equity_strategy", "balanced_growth")
+)
+
 if st.session_state.get("plan_applied"):
     st.info(
         f"**Use in MF sidebar:** Age {profile['profile_age']}, SIP ₹{profile['profile_sip']:,.0f}, "
